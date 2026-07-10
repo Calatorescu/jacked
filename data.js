@@ -4,6 +4,15 @@
 // Secvențele video sunt din clipurile originale ale canalului, redate prin
 // embed YouTube cu start/stop (verificate cadru cu cadru).
 
+// Moduri de antrenament (comutabile din Program):
+//  - beginner: 3 seturi × 8→12 (programul de bază al canalului, recomandat începătorilor)
+//  - 1x4: metoda 1×4 — 1 set dus la failure × 4 exerciții, 6→10 repetări
+// Exercițiile cu `mode` apar doar în modul respectiv; restul apar în ambele.
+const MODES = {
+  beginner: { label: "Începător — 3 seturi", sets: 3, repLow: 8, repHigh: 12 },
+  "1x4":    { label: "1×4 — un set la failure", sets: 1, repLow: 6, repHigh: 10 }
+};
+
 const PROGRAM = {
   cycle: ["push", "legs", "pull"],
   days: {
@@ -35,6 +44,7 @@ const PROGRAM = {
           id: "lowhigh-cable-fly",
           name: "Low-to-High Cable Fly",
           ro: "Fluturări la cablu, de jos în sus",
+          mode: "beginner",
           sets: 3, repLow: 8, repHigh: 12, rest: 90,
           video: { id: "lVDrlOw3gcQ", start: 149, end: 164 },
           cues: "Cablurile setate jos de tot, tragi în sus pe diagonală. Volum extra pentru pieptul superior.",
@@ -67,9 +77,20 @@ const PROGRAM = {
       video: "R8BRgzRE7yU",
       exercises: [
         {
+          id: "leg-press",
+          name: "Leg Press",
+          ro: "Presă de picioare",
+          mode: "1x4",
+          sets: 1, repLow: 6, repHigh: 10, rest: 120, compound: true,
+          video: { id: "4-ERnMonUGQ", start: 377, end: 399 },
+          cues: "Motorul principal pentru cvadriceps în metoda 1×4. În clip e făcută cu un singur picior — cu ambele e la fel de bine și mai rapid. Amplitudine completă, controlat.",
+          alts: ["Hack squat", "Genuflexiuni cu bara", "Pendulum squat"]
+        },
+        {
           id: "squat",
           name: "Squat (pendulum / hack / bară)",
           ro: "Genuflexiuni",
+          mode: "beginner",
           sets: 3, repLow: 8, repHigh: 12, rest: 180, compound: true,
           video: { id: "R8BRgzRE7yU", start: 102, end: 125 },
           cues: "Mișcarea compusă principală pentru cvadriceps. Alege varianta care îți place (pendulum, hack squat sau bară) și rămâi la ea.",
@@ -168,6 +189,7 @@ const PROGRAM = {
           id: "cable-curl",
           name: "Cable Curl",
           ro: "Flexii biceps la cablu",
+          mode: "beginner",
           sets: 3, repLow: 8, repHigh: 12, rest: 90,
           video: { id: "8r-lqewUNUY", start: 217, end: 228 },
           cues: "Ultimul exercițiu — termină în forță. Tensiune continuă pe tot parcursul mișcării.",
@@ -204,6 +226,12 @@ const NUTRITION = [
   { title: "Mâncare reală", body: "Carne, ouă, orez, cartofi, fructe, lactate. Restul caloriilor din carbohidrați și grăsimi sănătoase." },
   { title: "Suplimente: doar 2 merită", body: "Creatină monohidrat (3–5 g/zi) și eventual un multivitaminic + proteină din zer pentru comoditate. Restul sunt bani aruncați." }
 ];
+
+// Ziua 4 opțională din metoda 1×4 (accesorii — doar informativ)
+const DAY4_1X4 = {
+  title: "Ziua 4 (opțională) — accesorii",
+  body: "Dacă vrei o a patra zi: neck curls (începe fără greutate), wrist roller pentru antebrațe, cable crunch pentru abdomen și ridicări pe vârfuri pentru gambe — câte 1 set la failure fiecare. Autorul adaugă și un sprint de 15 secunde după o încălzire dinamică de 15 min. Complet opțional: cele 3 zile sunt programul."
+};
 
 const CHANNEL = {
   name: "Average to Jacked",
