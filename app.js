@@ -644,7 +644,8 @@ async function openVideo(ex) {
   const m = $("#video-modal");
   m.hidden = false;
   $("#video-title").textContent = ex.name;
-  $("#video-link").href = `https://www.youtube.com/watch?v=${ex.video.id}&t=${ex.video.start}s`;
+  document.querySelector("#video-modal .video-note").innerHTML =
+    `Secvență în buclă din canalul <a id="video-link" href="https://www.youtube.com/watch?v=${ex.video.id}&t=${ex.video.start}s" target="_blank" rel="noopener">Average to Jacked</a>.`;
   if (!navigator.onLine) {
     $("#yt-player").innerHTML = '<p style="color:#fff;padding:40px 16px;text-align:center">Ești offline — video-ul are nevoie de internet.<br>Citește indicațiile scrise de pe card.</p>';
     return;
@@ -673,22 +674,20 @@ async function openVideo(ex) {
     try { if (ytPlayer.getCurrentTime() >= ytSeg.end - 0.2) ytPlayer.seekTo(ytSeg.start); } catch {}
   }, 400);
 
-  // dacă playerul nu pornește (embed blocat, eroare YouTube), oferă link direct
+  // dacă playerul nu pornește singur (autoplay blocat), oferă și un link direct,
+  // fără să ascundem playerul — un tap pe butonul Play din video rămâne valabil
   const seg = ex.video;
   setTimeout(() => {
     if ($("#video-modal").hidden || ytSeg !== seg) return;
     let st = -2;
     try { st = ytPlayer.getPlayerState(); } catch {}
     if (st === -1 || st === -2 || st === undefined) {
-      const mm = Math.floor(seg.start / 60), ss = seg.start % 60;
-      $("#yt-player").innerHTML = `<div style="display:grid;place-items:center;height:100%;padding:20px;text-align:center">
-        <div>
-          <p style="color:#fff;font-size:14px;margin-bottom:14px">Playerul încorporat nu a pornit.</p>
-          <a class="btn" style="width:auto;text-decoration:none" target="_blank" rel="noopener"
-             href="https://www.youtube.com/watch?v=${seg.id}&t=${seg.start}s">▶ Vezi pe YouTube la ${mm}:${String(ss).padStart(2, "0")}</a>
-        </div></div>`;
+      const mm = Math.floor(seg.start / 60), ss = String(seg.start % 60).padStart(2, "0");
+      const note = document.querySelector("#video-modal .video-note");
+      note.innerHTML = `Nu pornește? Apasă Play pe video sau
+        <a href="https://www.youtube.com/watch?v=${seg.id}&t=${seg.start}s" target="_blank" rel="noopener">▶ deschide pe YouTube la ${mm}:${ss}</a>.`;
     }
-  }, 4500);
+  }, 5000);
 }
 
 function closeVideo() {
