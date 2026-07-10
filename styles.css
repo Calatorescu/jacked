@@ -275,7 +275,7 @@ main { max-width:640px; margin:0 auto; padding:0 14px 24px; }
 .modal-head { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; }
 .modal-head h3 { font-family:var(--disp); font-weight:600; font-size:19px; }
 .video-box { position:relative; width:100%; aspect-ratio:16/9; background:#000; }
-.video-box iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+.video-box iframe, .video-box video { position:absolute; inset:0; width:100%; height:100%; border:0; object-fit:contain; background:#000; }
 .video-note { padding:10px 14px 13px; font-size:12.5px; color:var(--ink2); }
 .video-note a { color:var(--ink); font-weight:600; }
 

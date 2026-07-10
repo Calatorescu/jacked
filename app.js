@@ -505,6 +505,41 @@ function renderUnelte() {
   rIn.addEventListener("input", calc);
   v.appendChild(rm);
 
+  // clipuri demo locale
+  v.appendChild(el("h2", "section-title", "Clipuri demo offline"));
+  const vc = el("div", "card");
+  const status = el("p", "small muted", "…");
+  vc.appendChild(status);
+  const refreshStatus = () => demoIds().then(ids => {
+    status.innerHTML = `<b>${ids.length}/${allExercises.length}</b> clipuri salvate pe telefon. ${ids.length ? "Demonstrațiile merg instant, și offline." : "Încarcă fișierele .mp4 primite (numele fișierului = exercițiul)."}`;
+  });
+  refreshStatus();
+  const vrow = el("div", "rest-actions");
+  vrow.style.marginTop = "10px";
+  const impV = el("label", "btn ghost", "Încarcă clipuri");
+  const impVIn = el("input");
+  impVIn.type = "file"; impVIn.accept = "video/mp4"; impVIn.multiple = true; impVIn.hidden = true;
+  impVIn.addEventListener("change", async () => {
+    if (!impVIn.files.length) return;
+    toast("Salvez clipurile…");
+    const { ok, skip } = await importDemos(impVIn.files);
+    toast(ok ? `${ok} clipuri salvate ✓` : "Niciun clip recunoscut");
+    if (skip.length) console.warn("Nume nerecunoscute:", skip);
+    refreshStatus();
+    impVIn.value = "";
+  });
+  impV.appendChild(impVIn);
+  const delV = el("button", "btn ghost", "Șterge clipurile");
+  delV.addEventListener("click", async () => {
+    if (!confirm("Ștergi clipurile demo salvate local?")) return;
+    await caches.delete(DEMO_CACHE);
+    toast("Clipuri șterse");
+    refreshStatus();
+  });
+  vrow.append(impV, delV);
+  vc.appendChild(vrow);
+  v.appendChild(vc);
+
   // date
   v.appendChild(el("h2", "section-title", "Datele tale"));
   const dc = el("div", "card");
@@ -626,6 +661,39 @@ function beep() {
   if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
 }
 
+/* ===== Clipuri demo locale (salvate pe telefon, redare offline) ===== */
+const DEMO_CACHE = "jacked-demos";
+let demoObjURL = null;
+
+async function demoURL(exId) {
+  try {
+    const c = await caches.open(DEMO_CACHE);
+    const r = await c.match("demo/" + exId + ".mp4");
+    if (!r) return null;
+    return URL.createObjectURL(await r.blob());
+  } catch { return null; }
+}
+
+async function demoIds() {
+  try {
+    const c = await caches.open(DEMO_CACHE);
+    return (await c.keys()).map(req => req.url.split("/").pop().replace(".mp4", ""));
+  } catch { return []; }
+}
+
+async function importDemos(files) {
+  const c = await caches.open(DEMO_CACHE);
+  let ok = 0, skip = [];
+  for (const f of files) {
+    const id = f.name.replace(/\.mp4$/i, "");
+    if (exById(id)) {
+      await c.put("demo/" + id + ".mp4", new Response(f, { headers: { "Content-Type": "video/mp4" } }));
+      ok++;
+    } else skip.push(f.name);
+  }
+  return { ok, skip };
+}
+
 /* ===== Video execuție (embed YouTube în buclă pe segment) ===== */
 let ytReady = false, ytPlayer = null, ytLoop = null, ytSeg = null;
 
@@ -646,6 +714,22 @@ async function openVideo(ex) {
   $("#video-title").textContent = ex.name;
   document.querySelector("#video-modal .video-note").innerHTML =
     `Secvență în buclă din canalul <a id="video-link" href="https://www.youtube.com/watch?v=${ex.video.id}&t=${ex.video.start}s" target="_blank" rel="noopener">Average to Jacked</a>.`;
+
+  // 1) clip local salvat pe telefon — merge offline, pornește instant
+  const local = await demoURL(ex.id);
+  if (local) {
+    demoObjURL = local;
+    const vd = document.createElement("video");
+    vd.src = local; vd.muted = true; vd.loop = true; vd.playsInline = true; vd.autoplay = true;
+    $("#yt-player").innerHTML = "";
+    $("#yt-player").appendChild(vd);
+    vd.play().catch(() => { vd.controls = true; });
+    document.querySelector("#video-modal .video-note").innerHTML =
+      `Clip salvat local · sursă: <a href="https://www.youtube.com/watch?v=${ex.video.id}&t=${ex.video.start}s" target="_blank" rel="noopener">Average to Jacked</a>.`;
+    return;
+  }
+
+  // 2) fallback: embed YouTube pe segment
   if (!navigator.onLine) {
     $("#yt-player").innerHTML = '<p style="color:#fff;padding:40px 16px;text-align:center">Ești offline — video-ul are nevoie de internet.<br>Citește indicațiile scrise de pe card.</p>';
     return;
@@ -694,6 +778,7 @@ function closeVideo() {
   $("#video-modal").hidden = true;
   clearInterval(ytLoop);
   if (ytPlayer) { try { ytPlayer.destroy(); } catch {} ytPlayer = null; }
+  if (demoObjURL) { URL.revokeObjectURL(demoObjURL); demoObjURL = null; }
   $("#yt-player").innerHTML = "";
 }
 $("#video-close").addEventListener("click", closeVideo);
