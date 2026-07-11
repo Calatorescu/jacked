@@ -210,7 +210,7 @@ function exerciseCard(ex, idx, day) {
   const last = lastPerformance(ex.id);
   const is1x4 = getMode() === "1x4";
   const targetLine = is1x4
-    ? `<b>1 set la failure</b> × ${t.repLow}–${t.repHigh} rep · încălzire: ${idx === 0 ? "3 seturi progresive (40/60/80%)" : "1 set la ~50%"} · apoi pauză 2 min`
+    ? `<b>1 set la failure</b> × ${t.repLow}–${t.repHigh} rep · pauză 2 min`
     : `<b>${t.sets} seturi</b> × ${t.repLow}–${t.repHigh} rep · pauză ${t.rest >= 120 ? (t.rest / 60) + " min" : t.rest + "s"}`;
 
   const head = el("div", "ex-head");
@@ -229,6 +229,29 @@ function exerciseCard(ex, idx, day) {
   card.appendChild(el("p", "ex-cues", ex.cues));
   if (last) card.appendChild(el("p", "ex-last", `Ultima dată (${fmtDate(last.date)}): ${last.sets.map(s => `${fmtW(s.w)}kg×${s.r}`).join(" · ")}`));
   card.appendChild(el("span", "ex-suggest", (sug.up ? "▲ " : "") + sug.text));
+
+  // bloc de încălzire cu kilogramele calculate din greutatea de lucru
+  const wu = el("div", "ex-warmup");
+  const roundStep = v => Math.max(2.5, Math.round(v / 2.5) * 2.5);
+  const updateWarmup = () => {
+    const w = parseFloat(draft.entries[ex.id][0].w) || parseFloat(sug.w) || 0;
+    if (!w) {
+      wu.innerHTML = `<b>Încălzire</b><span>scrie greutatea de lucru (kg) și îți calculez seturile de încălzire</span>`;
+      return;
+    }
+    if (idx === 0) {
+      wu.innerHTML = `<b>Încălzire</b><span class="wu-set">${fmtW(roundStep(w * 0.4))} kg × 8</span>
+        <span class="wu-set">${fmtW(roundStep(w * 0.6))} kg × 5</span>
+        <span class="wu-set">${fmtW(roundStep(w * 0.8))} kg × 3</span>
+        <span>apoi pauză 2 min → setul de lucru</span>`;
+    } else {
+      wu.innerHTML = `<b>Încălzire</b><span class="wu-set">${fmtW(roundStep(w * 0.5))} kg × 5–8</span>
+        <span>apoi direct setul de lucru</span>`;
+    }
+  };
+  updateWarmup();
+  card.appendChild(wu);
+  card.addEventListener("input", updateWarmup);
 
   const sets = el("div", "sets");
   draft.entries[ex.id].forEach((s, si) => sets.appendChild(setRow(ex, si)));
@@ -249,11 +272,12 @@ function exerciseCard(ex, idx, day) {
 
 function setRow(ex, si) {
   const s = draft.entries[ex.id][si];
+  const sug = suggestion(ex);
   const row = el("div", "set-row" + (s.done ? " done" : ""));
   row.innerHTML = `
     <span class="s-idx">${si + 1}</span>
-    <div class="num-field"><input type="text" inputmode="decimal" placeholder="—" value="${s.w !== "" ? fmtW(s.w) : ""}" aria-label="Greutate set ${si + 1}"><span class="unit">kg</span></div>
-    <div class="num-field"><input type="text" inputmode="numeric" placeholder="—" value="${s.r || ""}" aria-label="Repetări set ${si + 1}"><span class="unit">rep</span></div>`;
+    <div class="num-field"><input type="text" inputmode="decimal" placeholder="${sug.w ? fmtW(sug.w) : "kg"}" value="${s.w !== "" ? fmtW(s.w) : ""}" aria-label="Greutate set ${si + 1}"><span class="unit">kg</span></div>
+    <div class="num-field"><input type="text" inputmode="numeric" placeholder="${sug.r || "rep"}" value="${s.r || ""}" aria-label="Repetări set ${si + 1}"><span class="unit">rep</span></div>`;
   const [wIn, rIn] = row.querySelectorAll("input");
   wIn.addEventListener("input", () => { s.w = parseFloat(wIn.value.replace(",", ".")) || ""; store.saveDraft(draft); });
   rIn.addEventListener("input", () => { s.r = parseInt(rIn.value) || ""; store.saveDraft(draft); });

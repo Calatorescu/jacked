@@ -1,4 +1,4 @@
-const CACHE = "jacked-v5";
+const CACHE = "jacked-v6";
 const ASSETS = [
   "./",
   "index.html",
