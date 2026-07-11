@@ -142,6 +142,21 @@ function switchTab(tab) {
 document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
 
 /* ===== AZI ===== */
+const DAYGRAD = {
+  push: "linear-gradient(150deg,#D94A3F,#96231C)",
+  legs: "linear-gradient(150deg,#3A6FC8,#1C3F82)",
+  pull: "linear-gradient(150deg,#2FA265,#176B3E)"
+};
+
+function startDay(dayId) {
+  if (draft && draft.dayId !== dayId && hasProgress(draft)) {
+    if (!confirm("Ai un antrenament început. Îl abandonezi?")) return;
+  }
+  draft = newDraft(dayId);
+  store.saveDraft(draft);
+  renderAzi();
+}
+
 function renderAzi() {
   const v = $("#view-azi");
   v.innerHTML = "";
@@ -154,39 +169,82 @@ function renderAzi() {
     const d = PROGRAM.days[dayId];
     const b = el("button", "day-btn" + (selected === dayId ? " selected" : ""));
     b.style.setProperty("--c", d.color);
+    b.style.setProperty("--g", DAYGRAD[dayId]);
     b.innerHTML = `${dayId === sug && !selected ? '<span class="next-chip">urmează</span>' : ""}
       <span class="dot"></span><span class="d-name">${d.name}</span><span class="d-sub">${d.subtitle}</span>`;
-    b.addEventListener("click", () => {
-      if (draft && draft.dayId !== dayId && hasProgress(draft)) {
-        if (!confirm("Ai un antrenament început. Îl abandonezi?")) return;
-      }
-      draft = newDraft(dayId);
-      store.saveDraft(draft);
-      renderAzi();
-    });
+    b.addEventListener("click", () => startDay(dayId));
     picker.appendChild(b);
   }
   v.appendChild(picker);
 
   if (!draft) {
+    // banner de start pentru ziua sugerată
     const d = PROGRAM.days[sug];
-    v.appendChild(el("div", "empty", `Alege ziua de sus ca să începi.<br>Urmează <b>${d.name}</b> — ${d.subtitle}.`));
+    const hero = el("div", "day-hero");
+    hero.style.background = DAYGRAD[sug];
+    const dateStr = new Date().toLocaleDateString("ro-RO", { weekday: "long", day: "numeric", month: "long" });
+    hero.innerHTML = `<div>
+        <p class="h-eyebrow">Urmează · ${dateStr}</p>
+        <h2>${d.name}</h2>
+        <p class="h-sub">${d.subtitle} · ${MODES[getMode()].label}</p>
+        <button class="btn-hero">Începe antrenamentul</button>
+      </div>`;
+    hero.querySelector(".btn-hero").addEventListener("click", () => startDay(sug));
+    v.appendChild(hero);
     renderStreak();
     return;
   }
 
   const day = PROGRAM.days[draft.dayId];
   document.documentElement.style.setProperty("--daycolor", day.color);
+  document.documentElement.style.setProperty("--daygrad", DAYGRAD[draft.dayId]);
+
+  // banner-erou cu inel de progres al seturilor
+  const exs = modeExercises(day);
+  const hero = el("div", "day-hero");
+  hero.style.background = DAYGRAD[draft.dayId];
+  const dateStr = new Date().toLocaleDateString("ro-RO", { weekday: "long", day: "numeric", month: "long" });
+  const R = 26, C = 2 * Math.PI * R;
+  hero.innerHTML = `<div>
+      <p class="h-eyebrow">Antrenamentul de azi · ${dateStr}</p>
+      <h2>${day.name}</h2>
+      <p class="h-sub">${day.subtitle} · ${MODES[getMode()].label}</p>
+    </div>
+    <div class="h-ring">
+      <svg width="76" height="76" viewBox="0 0 76 76">
+        <circle cx="38" cy="38" r="${R}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="7"/>
+        <circle id="hero-prog" cx="38" cy="38" r="${R}" fill="none" stroke="#fff" stroke-width="7"
+          stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}"
+          transform="rotate(-90 38 38)"/>
+        <text id="hero-count" class="ring-txt" x="38" y="37" text-anchor="middle" dominant-baseline="central">0/0</text>
+        <text class="ring-lbl" x="38" y="52" text-anchor="middle">SETURI</text>
+      </svg>
+    </div>`;
+  v.appendChild(hero);
+
+  window._heroRefresh = () => {
+    let dn = 0, tt = 0;
+    for (const ex of exs) {
+      const sets = draft && draft.entries[ex.id] || [];
+      tt += sets.length;
+      dn += sets.filter(s => s.done).length;
+    }
+    const pc = hero.querySelector("#hero-prog"), ct = hero.querySelector("#hero-count");
+    if (!pc) return;
+    pc.setAttribute("stroke-dashoffset", tt ? C * (1 - dn / tt) : C);
+    ct.textContent = `${dn}/${tt}`;
+  };
+  window._heroRefresh();
 
   // eticheta modului activ
   v.appendChild(el("p", "small muted", `Mod: <b>${MODES[getMode()].label}</b> — se schimbă din tabul Program.`));
 
   // carduri exerciții
-  modeExercises(day).forEach((ex, i) => v.appendChild(exerciseCard(ex, i, day)));
+  exs.forEach((ex, i) => v.appendChild(exerciseCard(ex, i, day)));
 
   // final antrenament
   const fin = el("div", "finish-box");
-  const btn = el("button", "btn", "Termină antrenamentul ✓");
+  const btn = el("button", "btn finish", "Termină antrenamentul ✓");
   btn.addEventListener("click", finishWorkout);
   fin.appendChild(btn);
   v.appendChild(fin);
@@ -264,6 +322,7 @@ function exerciseCard(ex, idx, day) {
     draft.entries[ex.id].push({ w: prev ? prev.w : "", r: "", done: false });
     store.saveDraft(draft);
     sets.appendChild(setRow(ex, draft.entries[ex.id].length - 1));
+    if (window._heroRefresh) window._heroRefresh();
   });
   foot.appendChild(add);
   card.appendChild(foot);
@@ -297,6 +356,7 @@ function setRow(ex, si) {
       row.classList.remove("done");
       store.saveDraft(draft);
     }
+    if (window._heroRefresh) window._heroRefresh();
   });
   row.appendChild(btn);
   return row;
