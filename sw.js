@@ -1,10 +1,12 @@
-const CACHE = "jacked-v7";
+const CACHE = "jacked-v9";
 const ASSETS = [
   "./",
   "index.html",
   "styles.css",
   "app.js",
   "data.js",
+  "canal.js",
+  "canal-ui.js",
   "manifest.webmanifest",
   "assets/icon-192.png",
   "assets/icon-512.png",

@@ -36,10 +36,10 @@ for (const dayId of PROGRAM.cycle)
 
 const exById = id => allExercises.find(e => e.id === id);
 
-/* ===== Mod de antrenament (beginner / 1x4) ===== */
+/* ===== Mod de antrenament (beginner / 2x4) ===== */
 function getMode() {
   const m = localStorage.getItem(LS_MODE);
-  return MODES[m] ? m : "1x4";
+  return MODES[m] ? m : "2x4";
 }
 function setMode(m) { localStorage.setItem(LS_MODE, m); }
 
@@ -49,14 +49,19 @@ function modeExercises(day) {
   return day.exercises.filter(ex => !ex.mode || ex.mode === m);
 }
 
+/* în 2×4, gambele și abdomenul sunt parte din program, nu opționale */
+function isOptional(ex) { return ex.optional && getMode() !== "2x4"; }
+
 /* ținta de seturi/repetări/pauză a unui exercițiu în modul activ */
 function targetFor(ex) {
-  if (getMode() === "1x4") {
+  if (getMode() === "2x4") {
+    const m = MODES["2x4"];
+    const own = REPS_2X4[ex.id];
     return {
-      sets: 1,
-      repLow: ex.optional ? ex.repLow : MODES["1x4"].repLow,
-      repHigh: ex.optional ? ex.repHigh : MODES["1x4"].repHigh,
-      rest: ex.optional ? 90 : 120
+      sets: m.sets,
+      repLow: own ? own[0] : (ex.compound ? m.repLow : m.isoLow),
+      repHigh: own ? own[1] : (ex.compound ? m.repHigh : m.isoHigh),
+      rest: ex.compound ? 150 : 90
     };
   }
   return { sets: ex.sets, repLow: ex.repLow, repHigh: ex.repHigh, rest: ex.rest };
@@ -83,13 +88,13 @@ function lastPerformance(exId) {
 
 /* Sugestia de progresie — regula canalului (dublă progresie):
    beginner: 8→12 pe toate seturile, apoi +greutate
-   1x4: bate repetările de data trecută cu una; la 10 → +greutate, înapoi la 6 */
+   2x4: bate repetările de data trecută cu una; la capătul de sus pe ambele seturi → +greutate, înapoi jos */
 function suggestion(ex) {
   const t = targetFor(ex);
   const last = lastPerformance(ex.id);
   if (!last) {
-    const hint = getMode() === "1x4"
-      ? `Alege o greutate la care ajungi la failure pe la ${t.repLow}–${t.repHigh} repetări`
+    const hint = getMode() === "2x4"
+      ? `Alege o greutate cu care faci curat ${t.repLow}–${t.repHigh} repetări pe ambele seturi`
       : `Alege o greutate cu care faci ${t.repLow} repetări curate (ai mai putea ~2)`;
     return { text: hint, w: "", r: t.repLow };
   }
@@ -125,7 +130,7 @@ function newDraft(dayId) {
 }
 
 /* ===== Views ===== */
-const views = { azi: renderAzi, program: renderProgram, progres: renderProgres, unelte: renderUnelte };
+const views = { azi: renderAzi, program: renderProgram, progres: renderProgres, unelte: renderUnelte, canal: renderCanal };
 let activeTab = "azi";
 
 function switchTab(tab) {
@@ -266,16 +271,13 @@ function exerciseCard(ex, idx, day) {
   const t = targetFor(ex);
   const sug = suggestion(ex);
   const last = lastPerformance(ex.id);
-  const is1x4 = getMode() === "1x4";
-  const targetLine = is1x4
-    ? `<b>1 set la failure</b> × ${t.repLow}–${t.repHigh} rep · pauză 2 min`
-    : `<b>${t.sets} seturi</b> × ${t.repLow}–${t.repHigh} rep · pauză ${t.rest >= 120 ? (t.rest / 60) + " min" : t.rest + "s"}`;
+  const targetLine = `<b>${t.sets} seturi</b> × ${t.repLow}–${t.repHigh} rep · pauză ${getMode() === "2x4" ? (t.rest >= 120 ? "2–3 min" : "1–2 min") : (t.rest >= 120 ? (t.rest / 60) + " min" : t.rest + "s")}`;
 
   const head = el("div", "ex-head");
   head.innerHTML = `
     <span class="ex-num">${idx + 1}</span>
     <div class="ex-title">
-      <h3>${ex.name}${ex.optional ? ' <span class="muted small">(opțional)</span>' : ""}</h3>
+      <h3>${ex.name}${isOptional(ex) ? ' <span class="muted small">(opțional)</span>' : ""}</h3>
       <p class="ro">${ex.ro}</p>
       <p class="ex-target">${targetLine}</p>
     </div>`;
@@ -285,6 +287,7 @@ function exerciseCard(ex, idx, day) {
   card.appendChild(head);
 
   card.appendChild(el("p", "ex-cues", ex.cues));
+  if (getMode() === "2x4" && COT[ex.id]) card.appendChild(el("p", "ex-cues", `<b>Cot:</b> ${COT[ex.id]}`));
   if (last) card.appendChild(el("p", "ex-last", `Ultima dată (${fmtDate(last.date)}): ${last.sets.map(s => `${fmtW(s.w)}kg×${s.r}`).join(" · ")}`));
   card.appendChild(el("span", "ex-suggest", (sug.up ? "▲ " : "") + sug.text));
 
@@ -298,10 +301,10 @@ function exerciseCard(ex, idx, day) {
       return;
     }
     if (idx === 0) {
-      wu.innerHTML = `<b>Încălzire</b><span class="wu-set">${fmtW(roundStep(w * 0.4))} kg × 8</span>
-        <span class="wu-set">${fmtW(roundStep(w * 0.6))} kg × 5</span>
-        <span class="wu-set">${fmtW(roundStep(w * 0.8))} kg × 3</span>
-        <span>apoi pauză 2 min → setul de lucru</span>`;
+      wu.innerHTML = `<b>Încălzire</b><span class="wu-set">${fmtW(roundStep(w * 0.25))} kg × 8</span>
+        <span class="wu-set">${fmtW(roundStep(w * 0.5))} kg × 5</span>
+        <span class="wu-set">${fmtW(roundStep(w * 0.75))} kg × 3</span>
+        <span>apoi pauză completă → setul de lucru</span>`;
     } else {
       wu.innerHTML = `<b>Încălzire</b><span class="wu-set">${fmtW(roundStep(w * 0.5))} kg × 5–8</span>
         <span>apoi direct setul de lucru</span>`;
@@ -430,8 +433,8 @@ function renderProgram() {
   }
   seg.style.gridTemplateColumns = "1fr 1fr";
   modeCard.appendChild(seg);
-  modeCard.appendChild(el("p", "small muted", mode === "1x4"
-    ? "1×4 = metoda actuală a canalului: 4 exerciții, câte 1 set de încălzire + 1 set de lucru dus la failure, 6–10 rep. Notă: autorul o recomandă după ce stăpânești mișcările și știi ce înseamnă failure."
+  modeCard.appendChild(el("p", "small muted", mode === "2x4"
+    ? "2×4 = varianta intermediară a metodei canalului: 2 seturi de lucru pe exercițiu, fără încălzire. Canalul are 4 exerciții de bază pe zi; aici sunt 6, la cererea ta."
     : "3 seturi × 8–12 pe exercițiu — programul de bază al canalului, recomandat pentru primul an."));
   modeCard.lastChild.style.marginTop = "10px";
   v.appendChild(modeCard);
@@ -446,7 +449,7 @@ function renderProgram() {
     for (const ex of modeExercises(d)) {
       const t = targetFor(ex);
       const r = el("div", "p-ex");
-      r.innerHTML = `<div class="n"><b>${ex.name}${ex.optional ? " (opțional)" : ""}</b><span>${ex.ro}${ex.alts.length ? " · alternative: " + ex.alts.join(", ") : ""}</span></div>
+      r.innerHTML = `<div class="n"><b>${ex.name}${isOptional(ex) ? " (opțional)" : ""}</b><span>${ex.ro}${ex.alts.length ? " · alternative: " + ex.alts.join(", ") : ""}</span></div>
         <span class="t">${t.sets}×${t.repLow}–${t.repHigh}</span>`;
       const play = el("button", "play", `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`);
       play.setAttribute("aria-label", "Vezi execuția " + ex.name);
@@ -464,16 +467,17 @@ function renderProgram() {
     v.appendChild(c);
   };
 
-  if (mode === "1x4") {
-    mkSection("Cum progresezi (metoda 1×4)", [
-      { title: "1 set de încălzire + 1 set de lucru", body: "Încălzire la ~50% din greutatea de lucru, 5–8 repetări lente. La primul exercițiu al zilei: 3 seturi progresive (~40% × 8, ~60% × 5, ~80% × 3), pauză 1–2 min, apoi setul de lucru." },
-      { title: "Setul de lucru = până la failure", body: "Alege o greutate la care ajungi la failure între 6 și 10 repetări. Failure = repetarea nu mai urcă întreagă, cu formă corectă. Ultima repetare, cea grea, e cea care contează — nu te opri la primul disconfort." },
-      { title: "Bate-ți recordul cu O repetare", body: "Ai făcut 7 data trecută? Azi ținta e 8. Ai atins-o? Gata, ai progresat — nu forța a 9-a. Așa antrenamentul se autoreglează." },
-      { title: "La 10 repetări → crește greutatea", body: "Adaugă cea mai mică treaptă (2,5 kg) și coboară înapoi la 6, chiar dacă simți că poți mai mult. Tot progresie e." },
-      { title: "Pauze", body: "~2 minute între exerciții. Formă strictă mereu: repetări lente, controlate, pauză jos, fără avânt." }
+  if (mode === "2x4") {
+    mkSection("Cum progresezi (metoda 2×4)", [
+      { title: "Săptămâna", body: "3 zile: Push, Legs, Pull, cu o zi liberă între ele și două zile libere după Pull." },
+      { title: "Două seturi de lucru", body: "Încălzirea nu se numără. La primul exercițiu al zilei: 3 seturi progresive (~25%, ~50%, ~75%), pauză completă, apoi seturile de lucru." },
+      { title: "Te oprești la progres, nu la failure", body: "Ai făcut 7 data trecută? Azi ținta e 8. Ai atins-o cu formă curată? Gata, ai progresat — nu forța a 9-a. La brațe rămâi la 1–2 repetări de failure, din cauza cotului." },
+      { title: "La capătul de sus → crește greutatea", body: "Compuse 6–10, izolări 8–15. Când atingi capătul de sus pe ambele seturi, adaugi cea mai mică treaptă și cobori la capătul de jos." },
+      { title: "Pauze", body: "2–3 minute la compuse, 1–2 minute la izolări. Formă strictă: controlat, pauză scurtă jos, fără avânt." }
     ]);
+    mkSection("Epicondilita laterală (cotul tenismenului)", COT_REGULI);
     const d4 = el("div", "card");
-    d4.appendChild(el("div", "rule-item", `<b>${DAY4_1X4.title}</b><p>${DAY4_1X4.body}</p>`));
+    d4.appendChild(el("div", "rule-item", `<b>${DAY4.title}</b><p>${DAY4.body}</p>`));
     v.appendChild(d4);
   } else {
     mkSection("Cum progresezi (regula de aur)", [
@@ -484,6 +488,7 @@ function renderProgram() {
     ]);
   }
   mkSection("Încălzirea (înainte de fiecare antrenament)", WARMUP);
+  mkSection("Stretching și mobilitate", STRETCH);
   mkSection("Principiile canalului", PRINCIPLES);
   mkSection("Nutriție pentru masă musculară", NUTRITION);
 
