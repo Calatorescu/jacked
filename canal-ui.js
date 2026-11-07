@@ -75,7 +75,7 @@ function renderCanal() {
 
 function canalGhid(v) {
   v.appendChild(el("p", "small muted c-intro",
-    `Reformulat din clipurile canalului <a href="${CHANNEL.url}" target="_blank" rel="noopener">${CHANNEL.name}</a>, parcurse la ${CANAL.actualizat}. La o contradicție rămâne poziția cea mai nouă. Greutățile sunt în lb, ca pe canal (1 lb ≈ 0,45 kg). ▶ deschide clipul sursă.`));
+    `Reformulat din clipurile canalului <a href="${CHANNEL.url}" target="_blank" rel="noopener">${CHANNEL.name}</a>, parcurse la ${CANAL.actualizat}. La o contradicție rămâne poziția cea mai nouă. Cifrele canalului sunt convertite din lb, inci și uncii în kg, cm și ml, rotunjite. ▶ deschide clipul sursă.`));
   for (const t of CANAL.ghid.teme) {
     const d = el("details", "card c-tema");
     d.innerHTML = `<summary><b>${canalEsc(t.titlu)}</b><span class="c-n">${t.reguli.length}</span></summary>

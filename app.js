@@ -181,6 +181,7 @@ function renderAzi() {
     picker.appendChild(b);
   }
   v.appendChild(picker);
+  v.appendChild(weekStrip());
 
   if (!draft) {
     // banner de start pentru ziua sugerată
@@ -287,6 +288,8 @@ function exerciseCard(ex, idx, day) {
   card.appendChild(head);
 
   card.appendChild(el("p", "ex-cues", ex.cues));
+  const cc = canalPeCard(ex);
+  if (cc) card.appendChild(cc);
   if (getMode() === "2x4" && COT[ex.id]) card.appendChild(el("p", "ex-cues", `<b>Cot:</b> ${COT[ex.id]}`));
   if (last) card.appendChild(el("p", "ex-last", `Ultima dată (${fmtDate(last.date)}): ${last.sets.map(s => `${fmtW(s.w)}kg×${s.r}`).join(" · ")}`));
   card.appendChild(el("span", "ex-suggest", (sug.up ? "▲ " : "") + sug.text));
@@ -390,6 +393,7 @@ function finishWorkout() {
   if (prs.length) toast(`🏆 PR nou: ${prs.join(", ")}!`, true, 4200);
   else toast("Antrenament salvat. Bravo! 💪");
   renderAzi();
+  openStretch(true);
 }
 
 function renderStreak() {
@@ -489,6 +493,9 @@ function renderProgram() {
   }
   mkSection("Încălzirea (înainte de fiecare antrenament)", WARMUP);
   mkSection("Stretching și mobilitate", STRETCH);
+  const stb = el("button", "btn ghost st-start", "Pornește rutina de stretching");
+  stb.addEventListener("click", () => openStretch(false));
+  v.appendChild(stb);
   mkSection("Principiile canalului", PRINCIPLES);
   mkSection("Nutriție pentru masă musculară", NUTRITION);
 

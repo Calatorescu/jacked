@@ -386,3 +386,28 @@ main { max-width:640px; margin:0 auto; padding:0 14px 28px; }
 .c-ex { margin-top:8px; font-size:13.5px; color:var(--ink2); }
 .c-ex summary { cursor:pointer; }
 .c-more { display:block; width:100%; margin:4px 0 16px; }
+
+/* ===== Săptămâna, stretching, canal pe card ===== */
+.week { padding:12px 10px; }
+.week-row { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; }
+.wk { display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 0; border-radius:12px; border:1.5px solid transparent; }
+.wk-n { font-size:11px; font-weight:700; color:var(--ink3); }
+.wk-d { font-family:var(--disp); font-size:17px; font-weight:600; color:var(--ink2); }
+.wk-dot { width:7px; height:7px; border-radius:50%; background:transparent; }
+.wk.today { background:var(--paper); }
+.wk.today .wk-d { color:var(--ink); }
+.wk.plan { border-color:var(--line2); border-style:dashed; }
+.wk.done .wk-d { color:var(--ink); }
+.week-msg { margin:10px 4px 0; }
+.ex-canal { display:block; margin:8px 15px 0 51px; padding:0; font-size:13px; font-weight:600; color:var(--daycolor); text-align:left; }
+.sheet-card { max-height:86vh; display:flex; flex-direction:column; width:min(560px,100%); }
+.sheet-body { overflow:auto; padding:0 15px 16px; }
+.sh-tema h4 { margin:6px 0 2px; font-size:15px; }
+.st-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--line); }
+.st-check { flex:1; display:flex; gap:10px; align-items:flex-start; cursor:pointer; }
+.st-check input { width:20px; height:20px; margin-top:2px; flex:none; accent-color:var(--ok); }
+.st-check > span { display:flex; flex-direction:column; gap:2px; font-size:14px; }
+.st-timer { flex:none; min-width:68px; }
+.st-timer.on { background:var(--ink); color:#fff; border-color:var(--ink); }
+.st-src { margin-top:10px; }
+.st-start { display:block; width:100%; margin:-4px 0 8px; }

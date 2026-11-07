@@ -200,10 +200,20 @@ const PROGRAM = {
           id: "incline-db-curl",
           name: "Incline Dumbbell Curl",
           ro: "Flexii biceps pe bancă înclinată",
+          mode: "beginner",
           sets: 3, repLow: 8, repHigh: 12, rest: 90,
           video: { id: "8r-lqewUNUY", start: 200, end: 210 },
           cues: "Brațele atârnă în spatele corpului = întindere maximă pe biceps. Controlat, fără avânt.",
           alts: ["Flexii cu gantere în picioare"]
+        },
+        {
+          id: "cable-curl",
+          name: "Cable Curl",
+          ro: "Flexii biceps la cablu",
+          sets: 3, repLow: 8, repHigh: 12, rest: 90,
+          video: { id: "8r-lqewUNUY", start: 217, end: 228 },
+          cues: "Tensiune continuă pe tot parcursul mișcării. Controlat, fără avânt, cotul fix lângă corp.",
+          alts: ["Flexii la cablu prin spate"]
         },
         {
           id: "hammer-curl",
@@ -214,16 +224,6 @@ const PROGRAM = {
           video: { id: "YqVNxuYVIow", start: 232, end: 250 },
           cues: "Priză neutră, încheietura dreaptă. Îngroașă brațul și antebrațul. Controlat, întindere completă jos, fără avânt.",
           alts: ["Flexii ciocan la cablu cu coardă"]
-        },
-        {
-          id: "cable-curl",
-          name: "Cable Curl",
-          ro: "Flexii biceps la cablu",
-          mode: "beginner",
-          sets: 3, repLow: 8, repHigh: 12, rest: 90,
-          video: { id: "8r-lqewUNUY", start: 217, end: 228 },
-          cues: "Ultimul exercițiu — termină în forță. Tensiune continuă pe tot parcursul mișcării.",
-          alts: ["Flexii la cablu prin spate"]
         }
       ]
     }
@@ -235,6 +235,7 @@ const PROGRAM = {
 const REPS_2X4 = {
   "triceps-pushdown": [10, 15],
   "incline-db-curl": [10, 15],
+  "cable-curl": [10, 15],
   "hammer-curl": [10, 15],
   "seated-calf": [10, 15],
   "cable-crunch": [10, 15]
@@ -255,13 +256,14 @@ const COT = {
   "seated-cable-row": "Priză neutră, chingi la seturile grele; nu smuci greutatea la începutul mișcării.",
   "rear-delt-fly": "Mânere neutre dacă aparatul le are, nu cu palmele în jos. Priză relaxată.",
   "incline-db-curl": "Bancă la ~30°, greutate mică, încheietura dreaptă. Dacă doare, treci la flexii la cablu: autorul canalului a făcut la fel când a avut cot de tenisman.",
+  "cable-curl": "Ales în locul flexiilor pe bancă: autorul canalului a trecut la cablu când a avut cot de tenisman. Încheietura dreaptă, greutate mică.",
   "hammer-curl": "Începe foarte ușor: priza neutră poate solicita exteriorul cotului. Primul pe care îl scoți dacă doare."
 };
 
 const COT_REGULI = [
   { title: "Ce evităm", body: "Flexii cu palmele în jos, wrist roller, ridicări și atârnări de bară. Tot ce înseamnă strâns tare sau încheietura ridicată sub greutate. Exerciții directe pentru antebraț doar dacă le recomandă medicul sau kinetoterapeutul." },
   { title: "Regula durerii", body: "În timpul setului, cel mult 3 din 10 la cot. A doua zi dimineață trebuie să fie ca înainte. Dacă nu: scazi greutatea sau schimbi exercițiul." },
-  { title: "Ordinea în care scoți", body: "Dacă se agravează: scoți flexiile ciocan, apoi împinsul pentru umeri, apoi flexiile pe bancă înclinată. Spatele și picioarele rămân, cu chingi și priză neutră." },
+  { title: "Ordinea în care scoți", body: "Dacă se agravează: scoți flexiile ciocan, apoi împinsul pentru umeri, apoi flexiile la cablu. Spatele și picioarele rămân, cu chingi și priză neutră." },
   { title: "Oprire și verificare", body: "Durere ascuțită, amorțeală în degete sau durere care nu cedează în câteva săptămâni: oprești exercițiile care o provoacă și mergi la medic sau kinetoterapeut. Adaptările de aici nu vin de pe canal și nu sunt sfat medical." }
 ];
 
@@ -269,10 +271,10 @@ const COT_REGULI = [
 // atârnarea de bară e înlocuită, iar întinderile de antebraț nu vin de pe canal.
 const STRETCH = [
   { title: "Când", body: "După antrenament sau separat, în zilele libere. Nu înainte de antrenament: canalul ține încălzirea scurtă, fără întinderi lungi. Durează ~5 minute; zilnic sau de 3 ori pe săptămână." },
-  { title: "1. Antebraț, extensori (nu e de pe canal)", body: "Brațul întins în față, palma în jos. Cu cealaltă mână îndoi ușor încheietura în jos, până simți întinderea pe exteriorul antebrațului. 20–30 s, de 2–3 ori, pe fiecare braț. Întindere, nu durere." },
-  { title: "2. Antebraț, flexori (nu e de pe canal)", body: "Brațul întins, palma în sus. Îndoi ușor degetele spre podea. 20–30 s, de 2–3 ori, pe fiecare braț." },
-  { title: "3. Deschiderea umerilor (în locul atârnării de bară)", body: "Canalul folosește atârnarea de bară, dar ea încarcă priza. Sprijină palmele deschise pe un suport la nivelul pieptului și lasă pieptul în jos, fără să strângi nimic. 30–60 s." },
-  { title: "4. Genuflexiune adâncă asistată", body: "Ții ușor un suport stabil și cobori cât de jos e confortabil, mutând greutatea ușor stânga-dreapta. 30–60 s." },
+  { title: "1. Antebraț, extensori (nu e de pe canal)", sec: 30, body: "Brațul întins în față, palma în jos. Cu cealaltă mână îndoi ușor încheietura în jos, până simți întinderea pe exteriorul antebrațului. 20–30 s, de 2–3 ori, pe fiecare braț. Întindere, nu durere." },
+  { title: "2. Antebraț, flexori (nu e de pe canal)", sec: 30, body: "Brațul întins, palma în sus. Îndoi ușor degetele spre podea. 20–30 s, de 2–3 ori, pe fiecare braț." },
+  { title: "3. Deschiderea umerilor (în locul atârnării de bară)", sec: 45, body: "Canalul folosește atârnarea de bară, dar ea încarcă priza. Sprijină palmele deschise pe un suport la nivelul pieptului și lasă pieptul în jos, fără să strângi nimic. 30–60 s." },
+  { title: "4. Genuflexiune adâncă asistată", sec: 45, body: "Ții ușor un suport stabil și cobori cât de jos e confortabil, mutând greutatea ușor stânga-dreapta. 30–60 s." },
   { title: "5. Rotări cu banda peste cap", body: "Bandă ușoară, priză largă și relaxată. O duci lent peste cap, în spate și înapoi. 10–15 repetări. Dacă e prea mult, prinde mai larg." },
   { title: "6. Îndepărtări cu banda", body: "Banda în față, o tragi în lateral deschizând pieptul, cu priza relaxată. 10–15 repetări lente. Începi cu o rundă; apoi, dacă vrei, două sau trei." },
   { title: "Sursa", body: "Pașii 3–6 pornesc de la <a href=\"https://www.youtube.com/watch?v=iRdJk7dl2Tg\" target=\"_blank\" rel=\"noopener\">rutina de mobilitate a canalului</a>. Dacă o întindere crește durerea din cot, o scoți și întrebi medicul." }
