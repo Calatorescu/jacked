@@ -912,8 +912,10 @@ async function openVideo(ex) {
   const m = $("#video-modal");
   m.hidden = false;
   $("#video-title").textContent = ex.name;
+  if (ex.video.start === undefined) ex = { ...ex, video: { ...ex.video, start: 0 } };
+  const autor = ex.video.autor || "Average to Jacked";
   document.querySelector("#video-modal .video-note").innerHTML =
-    `Secvență în buclă din canalul <a id="video-link" href="https://www.youtube.com/watch?v=${ex.video.id}&t=${ex.video.start}s" target="_blank" rel="noopener">Average to Jacked</a>.`;
+    `${ex.video.autor ? "Clip demonstrativ de pe canalul" : "Secvență în buclă din canalul"} <a id="video-link" href="https://www.youtube.com/watch?v=${ex.video.id}&t=${ex.video.start}s" target="_blank" rel="noopener">${autor}</a>.`;
 
   // 1) clip local salvat pe telefon — merge offline, pornește instant
   const local = await demoURL(ex.id);
@@ -944,7 +946,7 @@ async function openVideo(ex) {
   $("#yt-player").appendChild(holder);
   ytPlayer = new YT.Player("yt-player-inner", {
     videoId: ex.video.id,
-    playerVars: { start: ex.video.start, end: ex.video.end, autoplay: 1, mute: 1, controls: 1, rel: 0, playsinline: 1, modestbranding: 1, iv_load_policy: 3, origin: location.origin, widget_referrer: location.href },
+    playerVars: { start: ex.video.start, ...(ex.video.end ? { end: ex.video.end } : {}), autoplay: 1, mute: 1, controls: 1, rel: 0, playsinline: 1, modestbranding: 1, iv_load_policy: 3, origin: location.origin, widget_referrer: location.href },
     events: {
       onReady: e => { e.target.mute(); e.target.playVideo(); },
       onStateChange: e => {
@@ -955,7 +957,7 @@ async function openVideo(ex) {
   clearInterval(ytLoop);
   ytLoop = setInterval(() => {
     if (!ytPlayer || !ytPlayer.getCurrentTime) return;
-    try { if (ytPlayer.getCurrentTime() >= ytSeg.end - 0.2) ytPlayer.seekTo(ytSeg.start); } catch {}
+    try { if (ytSeg.end && ytPlayer.getCurrentTime() >= ytSeg.end - 0.2) ytPlayer.seekTo(ytSeg.start); } catch {}
   }, 400);
 
   // dacă playerul nu pornește singur (autoplay blocat), oferă și un link direct,

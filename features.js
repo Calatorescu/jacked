@@ -128,6 +128,13 @@ function stretchPasi(body, pasi) {
       const it = el("div", "st-item");
       const extra = p.rep ? ` · ${p.rep}` : (p.side ? " · pe fiecare parte" : "");
       it.innerHTML = `<label class="st-check"><input type="checkbox"><span><b>${p.title}${extra}</b><span class="small muted">${p.body}</span></span></label>`;
+      const vid = p.video || (p.vid && STRETCH_VIDEO[p.vid]);
+      if (vid) {
+        const vb = el("button", "btn-video st-vid", `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Video`);
+        vb.setAttribute("aria-label", "Vezi cum se face: " + p.title);
+        vb.addEventListener("click", () => { sheetStopTimer(); openVideo({ id: "st-" + p.vid, name: p.title, video: vid }); });
+        it.appendChild(vb);
+      }
       if (p.sec) {
         const b = el("button", "btn ghost st-timer", `${p.sec} s`);
         b.addEventListener("click", () => {
