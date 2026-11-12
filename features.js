@@ -87,9 +87,47 @@ function openStretch(dupaAntrenament) {
   const pasi = STRETCH.filter(s => /^\d+\./.test(s.title));
   sheetOpen("Stretching · ~5 minute", body => {
     if (dupaAntrenament) body.appendChild(el("p", "small muted", "Antrenament salvat. Acum rutina de stretching, dacă ai timp."));
-    for (const p of pasi) {
+    stretchPasi(body, pasi.map(p => ({ ...p, title: p.title.replace(/\s*\(.*\)$/, "") })));
+    const src = STRETCH.find(s => s.title === "Sursa");
+    if (src) body.appendChild(el("p", "small muted st-src", src.body));
+  });
+}
+
+/* Rutina pe zi: faza „inainte” (mobilitate) sau „dupa” (întinderi). */
+function openStretchZi(dayId, faza, dupaAntrenament) {
+  const r = STRETCH_ZI[dayId];
+  if (!r) return;
+  const d = PROGRAM.days[dayId];
+  const inainte = faza === "inainte";
+  sheetOpen(`${inainte ? "Înainte" : "După"} ${d.name} · ~${inainte ? 3 : 5} minute`, body => {
+    if (dupaAntrenament) body.appendChild(el("p", "small muted", "Antrenament salvat. Acum întinderile pentru mușchii lucrați azi."));
+    body.appendChild(el("p", "small muted", inainte
+      ? "După mersul pe bandă, înainte de seturile de încălzire. Mișcări controlate, nu ținute: nu trebuie să obosească."
+      : "Ține fiecare întindere 30 s, fără arcuiri. Unde scrie „pe fiecare parte”, după prima parte butonul arată „Partea 2”."));
+    stretchPasi(body, r[faza]);
+    body.appendChild(el("p", "small muted st-src", STRETCH_ZI_SURSA));
+  });
+}
+
+/* Card pe tabul Azi, cu cele două rutine ale zilei. */
+function stretchZiCard(dayId, faza) {
+  const r = STRETCH_ZI[dayId];
+  if (!r) return null;
+  const inainte = faza === "inainte";
+  const c = el("div", "card st-zi");
+  c.innerHTML = `<div class="st-zi-t"><b>${inainte ? "Înainte · mobilitate ~3 min" : "După · întinderi ~5 min"}</b>
+    <span class="small muted">${r[faza].map(p => p.title).join(" · ")}</span></div>`;
+  const b = el("button", "btn ghost", "Deschide");
+  b.addEventListener("click", () => openStretchZi(dayId, faza, false));
+  c.appendChild(b);
+  return c;
+}
+
+function stretchPasi(body, pasi) {
+  for (const p of pasi) {
       const it = el("div", "st-item");
-      it.innerHTML = `<label class="st-check"><input type="checkbox"><span><b>${p.title.replace(/\s*\(.*\)$/, "")}</b><span class="small muted">${p.body}</span></span></label>`;
+      const extra = p.rep ? ` · ${p.rep}` : (p.side ? " · pe fiecare parte" : "");
+      it.innerHTML = `<label class="st-check"><input type="checkbox"><span><b>${p.title}${extra}</b><span class="small muted">${p.body}</span></span></label>`;
       if (p.sec) {
         const b = el("button", "btn ghost st-timer", `${p.sec} s`);
         b.addEventListener("click", () => {
@@ -106,9 +144,15 @@ function openStretch(dupaAntrenament) {
             if (left <= 0) {
               sheetStopTimer();
               b.classList.remove("on");
+              if (navigator.vibrate) navigator.vibrate(200);
+              if (p.side && !b.dataset.parte) {
+                // prima parte gata: butonul pornește a doua parte
+                b.dataset.parte = "2";
+                b.textContent = "Partea 2";
+                return;
+              }
               b.textContent = "Gata ✓";
               it.querySelector("input").checked = true;
-              if (navigator.vibrate) navigator.vibrate(200);
             }
           }, 1000);
         });
@@ -116,10 +160,7 @@ function openStretch(dupaAntrenament) {
         it.appendChild(b);
       }
       body.appendChild(it);
-    }
-    const src = STRETCH.find(s => s.title === "Sursa");
-    if (src) body.appendChild(el("p", "small muted st-src", src.body));
-  });
+  }
 }
 
 /* ===== Ce spune canalul, pe card ===== */

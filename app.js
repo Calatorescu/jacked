@@ -245,8 +245,12 @@ function renderAzi() {
   // eticheta modului activ
   v.appendChild(el("p", "small muted", `Mod: <b>${MODES[getMode()].label}</b> — se schimbă din tabul Program.`));
 
-  // carduri exerciții
+  // mobilitate înainte, carduri exerciții, întinderi după
+  const stIn = stretchZiCard(draft.dayId, "inainte");
+  if (stIn) v.appendChild(stIn);
   exs.forEach((ex, i) => v.appendChild(exerciseCard(ex, i, day)));
+  const stDupa = stretchZiCard(draft.dayId, "dupa");
+  if (stDupa) v.appendChild(stDupa);
 
   // final antrenament
   const fin = el("div", "finish-box");
@@ -385,6 +389,7 @@ function finishWorkout() {
     }
   }
 
+  const ziTerminata = draft.dayId;
   logs.push({ id: Date.now(), date: draft.date, dayId: draft.dayId, entries: draft.entries });
   store.saveLogs(logs);
   draft = null;
@@ -393,7 +398,8 @@ function finishWorkout() {
   if (prs.length) toast(`🏆 PR nou: ${prs.join(", ")}!`, true, 4200);
   else toast("Antrenament salvat. Bravo! 💪");
   renderAzi();
-  openStretch(true);
+  if (STRETCH_ZI[ziTerminata]) openStretchZi(ziTerminata, "dupa", true);
+  else openStretch(true);
 }
 
 function renderStreak() {
@@ -461,6 +467,13 @@ function renderProgram() {
       r.appendChild(play);
       card.appendChild(r);
     }
+    const stRow = el("div", "st-zi-row");
+    for (const [faza, eticheta] of [["inainte", "Mobilitate înainte"], ["dupa", "Întinderi după"]]) {
+      const b = el("button", "btn ghost", eticheta);
+      b.addEventListener("click", () => openStretchZi(dayId, faza, false));
+      stRow.appendChild(b);
+    }
+    card.appendChild(stRow);
     v.appendChild(card);
   }
 
@@ -492,7 +505,7 @@ function renderProgram() {
     ]);
   }
   mkSection("Încălzirea (înainte de fiecare antrenament)", WARMUP);
-  mkSection("Stretching și mobilitate", STRETCH);
+  mkSection("Stretching și mobilitate (zilele libere)", STRETCH);
   const stb = el("button", "btn ghost st-start", "Pornește rutina de stretching");
   stb.addEventListener("click", () => openStretch(false));
   v.appendChild(stb);

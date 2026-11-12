@@ -411,3 +411,8 @@ main { max-width:640px; margin:0 auto; padding:0 14px 28px; }
 .st-timer.on { background:var(--ink); color:#fff; border-color:var(--ink); }
 .st-src { margin-top:10px; }
 .st-start { display:block; width:100%; margin:-4px 0 8px; }
+.st-zi { display:flex; align-items:center; gap:12px; border-left:4px solid var(--daycolor, var(--ink)); }
+.st-zi-t { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; font-size:14.5px; }
+.st-zi .btn { flex:none; }
+.st-zi-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+.st-zi-row .btn { width:100%; font-size:13.5px; padding-left:8px; padding-right:8px; }

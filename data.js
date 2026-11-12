@@ -270,7 +270,7 @@ const COT_REGULI = [
 // Stretching și mobilitate. Rutina de bază vine din clipul de mobilitate al canalului;
 // atârnarea de bară e înlocuită, iar întinderile de antebraț nu vin de pe canal.
 const STRETCH = [
-  { title: "Când", body: "După antrenament sau separat, în zilele libere. Nu înainte de antrenament: canalul ține încălzirea scurtă, fără întinderi lungi. Durează ~5 minute; zilnic sau de 3 ori pe săptămână." },
+  { title: "Când", body: "Rutina generală, pentru zilele libere (~5 minute, zilnic sau de 3 ori pe săptămână). În zilele de antrenament ai rutinele pe zi, pe tabul Azi: mobilitate de ~3 minute înainte și întinderi de ~5 minute după. Înainte, doar mișcări, fără ținute lungi; canalul ține încălzirea scurtă." },
   { title: "1. Antebraț, extensori (nu e de pe canal)", sec: 30, body: "Brațul întins în față, palma în jos. Cu cealaltă mână îndoi ușor încheietura în jos, până simți întinderea pe exteriorul antebrațului. 20–30 s, de 2–3 ori, pe fiecare braț. Întindere, nu durere." },
   { title: "2. Antebraț, flexori (nu e de pe canal)", sec: 30, body: "Brațul întins, palma în sus. Îndoi ușor degetele spre podea. 20–30 s, de 2–3 ori, pe fiecare braț." },
   { title: "3. Deschiderea umerilor (în locul atârnării de bară)", sec: 45, body: "Canalul folosește atârnarea de bară, dar ea încarcă priza. Sprijină palmele deschise pe un suport la nivelul pieptului și lasă pieptul în jos, fără să strângi nimic. 30–60 s." },
@@ -280,9 +280,65 @@ const STRETCH = [
   { title: "Sursa", body: "Pașii 3–6 pornesc de la <a href=\"https://www.youtube.com/watch?v=iRdJk7dl2Tg\" target=\"_blank\" rel=\"noopener\">rutina de mobilitate a canalului</a>. Dacă o întindere crește durerea din cot, o scoți și întrebi medicul." }
 ];
 
+// Stretching pe zile: ÎNAINTE = mobilitate dinamică (mișcări, nu ținute lungi), ~3 minute,
+// după mersul pe bandă și înainte de seturile progresive; DUPĂ = întinderi statice pe mușchii
+// lucrați în ziua respectivă, ~5 minute. Nu vin de pe canal: sunt alese după recomandările
+// ACSM (ținute de 10–30 s, ~60 s pe grup muscular) și după analiza lui Behm et al. (2016):
+// înainte de forță, mișcările dinamice; ținutele statice lungi, după.
+// Adaptate la cot: fără atârnări de bară, fără strâns tare, fără încheietura sub greutate.
+const STRETCH_ZI = {
+  push: {
+    inainte: [
+      { title: "Cercuri cu brațele", rep: "10 înainte + 10 înapoi", body: "De la cercuri mici la cercuri mari, lent. Pregătește umărul pentru împinsuri și ridicări laterale." },
+      { title: "Rotații externe cu banda", rep: "12–15 pe braț", body: "Cotul lipit de corp, îndoit la 90°, duci antebrațul spre exterior. Activează coafa rotatorilor, care ține umărul stabil la împins. Bandă ușoară, priză relaxată." },
+      { title: "Îndepărtări cu banda", rep: "15", body: "Brațele întinse în față, deschizi banda spre lateral strângând omoplații. Omoplații stabili = umăr protejat pe bancă." },
+      { title: "Flotări la perete, din omoplați", rep: "10", body: "Palmele pe perete, brațele întinse: lași pieptul spre perete doar din omoplați, apoi împingi peretele de la tine. Fără să îndoi coatele." }
+    ],
+    dupa: [
+      { title: "Piept, la cadrul ușii", sec: 30, side: true, body: "Antebrațul pe cadru, cotul la nivelul umărului, faci un pas înainte până simți întinderea în piept și în fața umărului. Pentru împinsuri și fluturări." },
+      { title: "Umăr, brațul peste piept", sec: 30, side: true, body: "Brațul întins trece prin fața pieptului; cu cealaltă mână îl tragi ușor de deasupra cotului, nu de încheietură. Pentru umeri, după împins și ridicări laterale." },
+      { title: "Triceps, deasupra capului", sec: 30, side: true, body: "Mâna coboară pe spate, între omoplați; cu cealaltă mână împingi ușor cotul înapoi. Dacă simți cotul, nu insista." },
+      { title: "Antebraț, extensori", sec: 30, side: true, body: "Brațul întins în față, palma în jos, îndoi ușor încheietura în jos cu cealaltă mână. Pentru cot, după toate mânerele de azi. Întindere, nu durere." }
+    ]
+  },
+  legs: {
+    inainte: [
+      { title: "Balansări de picior, față-spate", rep: "10 pe picior", body: "Te sprijini cu o mână de perete și balansezi piciorul relaxat înainte și înapoi, tot mai larg. Pregătește femuralii și flexorii șoldului pentru RDL și presă." },
+      { title: "Balansări laterale", rep: "10 pe picior", body: "Cu fața la perete, balansezi piciorul prin fața celuilalt și în lateral. Pregătește interiorul coapsei și șoldul." },
+      { title: "Genunchiul la perete (glezna)", rep: "10 pe picior", body: "Vârful la o palmă de perete, duci genunchiul spre perete fără să ridici călcâiul. Glezna mobilă = genuflexiune și presă mai adânci, fără să se rotunjească spatele." },
+      { title: "Genuflexiuni lente, fără greutate", rep: "8–10", body: "Cobori cât de jos e confortabil, 2 secunde jos, urci. Dacă vrei sprijin, ții ușor un suport. Apoi 5 îndoiri din șold cu mâinile pe șolduri, spatele drept, pentru RDL." }
+    ],
+    dupa: [
+      { title: "Femurali, piciorul pe bancă", sec: 30, side: true, body: "Călcâiul pe o bancă joasă, piciorul aproape întins, te apleci din șold cu spatele drept până simți spatele coapsei. Pentru RDL și flexii de femurali." },
+      { title: "Cvadriceps, în picioare", sec: 30, side: true, body: "Prinzi glezna (sau pantalonul) și duci călcâiul spre fesă, genunchii unul lângă altul, fesa strânsă. Sprijin de perete cu cealaltă mână. Pentru presă și extensii." },
+      { title: "Flexorii șoldului, pe un genunchi", sec: 30, side: true, body: "Fandare cu genunchiul din spate pe un prosop; strângi fesa și împingi ușor șoldul înainte, fără să arcuiești spatele." },
+      { title: "Fesieri, figura 4", sec: 30, side: true, body: "Culcat pe spate, glezna pe genunchiul opus; tragi ușor coapsa de jos spre piept, cu mâinile pe după coapsă." },
+      { title: "Gambe, la perete", sec: 30, side: true, body: "Mâinile pe perete, un picior întins în spate cu călcâiul pe podea, apeși șoldul înainte. Pentru ridicările pe vârfuri." }
+    ]
+  },
+  pull: {
+    inainte: [
+      { title: "Cercuri cu brațele", rep: "10 înainte + 10 înapoi", body: "De la cercuri mici la mari, lent. Pregătește umărul pentru tracțiuni." },
+      { title: "Rotații toracice, în patru labe", rep: "8 pe parte", body: "O mână la ceafă, rotești cotul spre podea, apoi spre tavan, urmărindu-l cu privirea. Spatele de sus mobil = ramat cu amplitudine completă." },
+      { title: "Îndepărtări cu banda", rep: "15", body: "Brațele întinse în față, deschizi banda spre lateral. Activează umerii posteriori și mijlocul spatelui, pe care le lucrezi azi. Priză relaxată." },
+      { title: "Coborâri din omoplați, la helcometru", rep: "10", body: "Greutate mică, brațele întinse: tragi doar omoplații în jos și înapoi, fără să îndoi coatele. Înveți spatele să pornească tracțiunea. Mâner neutru, priză ușoară." }
+    ],
+    dupa: [
+      { title: "Dorsali, cu brațele pe bancă", sec: 30, body: "În genunchi în fața unei bănci, coatele pe bancă, șoldurile înapoi, pieptul coboară spre podea. În locul atârnării de bară, ca să nu încarce cotul." },
+      { title: "Spatele de sus, rotunjit", sec: 30, body: "În picioare, brațele în față, palmele una peste alta fără să le strângi; rotunjești spatele și împingi mâinile departe de tine, ca omoplații să se depărteze." },
+      { title: "Biceps, la perete", sec: 30, side: true, body: "Palma pe perete la nivelul umărului, degetele spre spate, brațul întins; rotești ușor corpul în partea opusă. Pentru flexiile de azi." },
+      { title: "Umăr posterior, brațul peste piept", sec: 30, side: true, body: "Brațul întins trece prin fața pieptului; îl tragi ușor de deasupra cotului. Pentru fluturările posterioare." },
+      { title: "Antebraț, flexori și extensori", sec: 30, side: true, body: "Brațul întins, palma în sus: îndoi ușor degetele spre podea. Apoi palma în jos: îndoi încheietura în jos. Ziua de Pull încarcă cel mai mult priza și cotul." }
+    ]
+  }
+};
+
+const STRETCH_ZI_SURSA = "Nu vin de pe canal. Sunt alese pentru exercițiile fiecărei zile, după recomandările ACSM (ținute de 10–30 s, cam 60 s în total pe grup muscular) și după analiza Behm și colab., 2016: înainte de forță, mișcări dinamice; ținutele statice, după. Întinderea se simte, nu doare. Dacă o întindere crește durerea din cot, o scoți.";
+
 // Ghid de încălzire — din videoclipul dedicat al canalului
 const WARMUP = [
   { title: "Mers înclinat 5–10 min", body: "Bandă cu înclinație, ritm lejer. Doar cât să-ți crești temperatura corpului și să intri mental în antrenament. La picioare poți merge 10–12 min." },
+  { title: "Mobilitatea zilei, ~3 minute", body: "Cele 4 mișcări de pe cardul „Înainte” din tabul Azi, alese pentru exercițiile zilei (Push, Legs sau Pull). Mișcări, nu ținute lungi." },
   { title: "Mimează mișcările cu banda elastică", body: "Ia o bandă ușoară și imită exercițiile de azi: presses, ridicări laterale, flexii, extensii. Lin și controlat, câteva repetări — nu trebuie să obosească." },
   { title: "Seturi progresive la primul exercițiu", body: "≈25% din greutatea de lucru × 8 · ≈50% × 5 · ≈75% × 3. Pauză 30–45 sec între ele, apoi pauză completă înainte de primul set de lucru." },
   { title: "La restul exercițiilor", body: "Un singur set de încălzire la ~50% din greutatea de lucru, 5–8 repetări lente, apoi direct la seturile de lucru." },
