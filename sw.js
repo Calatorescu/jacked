@@ -1,4 +1,4 @@
-const CACHE = "jacked-v13";
+const CACHE = "jacked-v14";
 const ASSETS = [
   "./",
   "index.html",
@@ -26,7 +26,8 @@ self.addEventListener("install", e => {
 
 self.addEventListener("activate", e => {
   e.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    // sterge doar cache-urile vechi ale v1 (jacked-vN); nu atinge clipurile demo (jacked-demos) si nici v2 (jacked2-*)
+    caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith("jacked-v") && k !== CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
