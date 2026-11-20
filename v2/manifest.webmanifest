@@ -1,0 +1,16 @@
+{
+  "name": "Jacked v2 — Recomp 4+2",
+  "short_name": "Jacked 2",
+  "description": "Jurnal de antrenament: programul Recomp 4+2 — forță 4 zile, cardio zonă 2 și intervale, mobilitate.",
+  "lang": "ro",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F2F1EC",
+  "theme_color": "#F2F1EC",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
